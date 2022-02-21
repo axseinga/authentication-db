@@ -1,0 +1,21 @@
+{
+    "name": "auth",
+    "version": "1.0.0",
+    "description": " authorization and authentication for backend with use of express, mongoose and mongoDB",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Agnieszka Urbanowicz",
+    "license": "ISC",
+    "dependencies": {
+        "dotenv": "^16.0.0",
+        "express": "^4.17.3",
+        "joi": "^17.6.0",
+        "mongoose": "^6.2.2"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.15"
+    }
+}
