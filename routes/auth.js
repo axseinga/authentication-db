@@ -31,6 +31,8 @@ router.post("/register", async (req, res) => {
     }
 });
 
+let refreshTokens = [];
+
 router.post("/login", async (req, res) => {
     const { error } = loginValidation(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -41,8 +43,48 @@ router.post("/login", async (req, res) => {
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) return res.status(400).send("Email or password is wrong");
 
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
-    res.header("auth-token", token).send(token);
+    const accessToken = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
+        expiresIn: "60d",
+    });
+    const refreshToken = jwt.sign(
+        { _id: user._id },
+        process.env.TOKEN_SECRET_REFRESH
+    );
+    refreshTokens.push(refreshToken);
+
+    res.header("auth-token", accessToken).json({ accessToken, refreshToken });
+});
+
+router.post("/token", (req, res) => {
+    const { token } = req.body;
+
+    if (!token) return res.status(401).send("Unauthorized Access");
+    if (!refreshTokens.includes(token))
+        return res.status(403).send("Forbidden response");
+
+    jwt.verify(token, refreshTokens, (err, user) => {
+        if (err) return res.status(403).send("Forbidden response");
+
+        const accessToken = jwt.sign(
+            { _id: user._id },
+            process.env.TOKEN_SECRET,
+            {
+                expiresIn: "60d",
+            }
+        );
+
+        res.json({
+            accessToken,
+        });
+    });
+});
+
+router.post("/logout", (req, res) => {
+    const { token } = req.body;
+
+    refreshTokens = refreshTokens.filter((t) => t !== token);
+
+    res.send("Logout successful");
 });
 
 export { router };
