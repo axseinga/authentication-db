@@ -10,7 +10,7 @@ Use example:
 _/yourRouter.js_
 
 ```
-import verify from "./routes/verifyToken.js";
+import { verify } from "./routes/verifyToken.js";
 
 router.get("/", **verify**, (res, req) => {
     res.json({
